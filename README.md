@@ -16,7 +16,8 @@ Nosotros lo usamos para encapsular el **Modo** de bicho `(Perezoso,Agresivo)`
 ![imagen](https://github.com/user-attachments/assets/37aa7a0a-c904-4322-97ba-ef01399e5d38)
 
 # Composite
-![imagen](https://github.com/user-attachments/assets/8b118f8b-4eb1-422c-b272-79379c94ca10)
+![imagen](https://github.com/user-attachments/assets/382e64be-7dc3-4f88-895d-79671585694e)
+
 
 
 
