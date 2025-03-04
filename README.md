@@ -20,7 +20,10 @@ Este patrón se utiliza para representar gerarquias todo-parte.Simplifica a los 
 
 # Iterator 
 Facilita una foma de acceder(recorrer) secuencialmente a los elementos de un agregado sin saber su implementación.
+![Iterator](https://github.com/user-attachments/assets/494251cd-6674-4703-983e-c37a85f3da0d)
 
+# Template 
+![Main](https://github.com/user-attachments/assets/9b9310a6-e54f-4707-9772-7f95eb632e31)
 
 
 
