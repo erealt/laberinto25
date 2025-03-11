@@ -31,5 +31,9 @@ Facilita una foma de acceder(recorrer) secuencialmente a los elementos de un agr
 
 ![image](https://github.com/user-attachments/assets/d0785475-04a3-48ab-b24a-80f971efd2e8)
 
+# Singleton 
+Hemos aplicado el Singleton en las orientaciones.
+
+![image](https://github.com/user-attachments/assets/61b6d017-95d6-4ee1-97ee-ed88658fcac9)
 
 
