@@ -5,29 +5,31 @@
 Implementado en **Creator**, que permite fabricar distintos elementos (Habitacion, Pared, Puerta). También existe **CreatorB**, que genera paredes con bombas en lugar de paredes normales.
 
 
-![Factory](https://github.com/user-attachments/assets/18476668-fce7-4414-894e-ccd48fd42e6e)
+![image](https://github.com/user-attachments/assets/f3a531ce-c34f-4f00-a6fe-9f9aeb8a9e46)
 
 # Decorator 
 Este patrón agrega responsabilidades a otros objetos mediante composición.Lo hemos implementado en **ParedBomba** , que actua como decorador de Pared.
-![Decorator](https://github.com/user-attachments/assets/be4b1a87-c4e2-47be-9c3d-92f2af2e1d49)
+![image](https://github.com/user-attachments/assets/e3354f42-7338-4f74-b849-0ce264676c9f)
+
 
 
 # Strategy 
 El Strategy encapsula familias de algoritmos como objetos.Nosotros lo usamos para encapsular el **Modo** de bicho `(Perezoso,Agresivo)`
-![Strategy](https://github.com/user-attachments/assets/fc24dabb-73c1-472f-9b31-02f32be72f04)
+![image](https://github.com/user-attachments/assets/a3bd80fe-b2e9-49bb-b7c2-06285bf76646)
 
 
 # Composite
 Este patrón se utiliza para representar gerarquias todo-parte.Simplifica a los clientes , ya que tratar de manera uniforme compuestos(tiene hijos) y hojas(simple).
-![Composite](https://github.com/user-attachments/assets/925a765b-cc75-4d86-adfd-3866b96ea66f)
+![image](https://github.com/user-attachments/assets/c1a710af-e5aa-4868-9668-cfb959bd72ff)
+
 
 # Iterator 
 Facilita una foma de acceder(recorrer) secuencialmente a los elementos de un agregado sin saber su implementación.
-![Iterator](https://github.com/user-attachments/assets/397ad044-1a11-4942-92fd-36ea860cf2bf)
+![image](https://github.com/user-attachments/assets/27fa8e48-7513-42d1-a4f2-bb83e243356d)
 
 # Template 
 
-![Template](https://github.com/user-attachments/assets/1a642de1-a399-4b88-aea7-28343b7af0e8)
+![image](https://github.com/user-attachments/assets/d0785475-04a3-48ab-b24a-80f971efd2e8)
 
 
 
