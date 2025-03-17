@@ -1,248 +1,138 @@
-class ElementoMapa:
-    """Clase base para elementos del mapa."""
-    def __init__(self):
-        pass
-    def entrar(self):
-        pass
-
-class Decorator(ElementoMapa):
-    def __init__(self,em):
-        super().__init__()
-        self.em = em
-        pass
-class Bomba(Decorator):
-    def __init__(self,em):
-        super().__init__(em)
-        self.activa = False
-    
-    def entrar(self):
-        if self.activa:
-            print("Has chocado con una bomba")
-        else:
-            self.em.entrar()
-class Bicho:
-    def __init__(self, vidas, poder, modo, posicion):
-        self.vidas = vidas
-        self.poder = poder
-        self.modo = modo
-        self.posicion = posicion
-
-    def iniAgresivo(self):
-        self.modo = Agresivo()
-        self.poder = 10
-        self.vidas = 5
-
-    def iniPerezoso(self):
-        self.modo = Perezoso()
-        self.poder = 1
-        self.vidas = 5
-
-class Modo:
-    def __init__(self):
-        pass
-
-class Agresivo(Modo):
-    def __init__(self):
-        super().__init__()
-
-class Perezoso(Modo):
-    def __init__(self):
-        super().__init__()
-
-
-
-class Habitacion(ElementoMapa):
-    def __init__(self, num):
-        self.num = num
-        self.norte = None
-        self.sur = None
-        self.este = None
-        self.oeste = None
-
-    def entrar(self):
-        print(f"Estás en una habitación{self.num}")
-
-    def __repr__(self):
-        return f"Habitacion({self.num})"
-
-class Laberinto(ElementoMapa):
-    def __init__(self):
-        self.habitaciones = []
-
-    def agregar_habitacion(self, habitacion):
-        self.habitaciones.append(habitacion)
-    
-    def eliminar_habitacion(self, habitacion):
-        self.habitaciones.remove(habitacion)
-
-    def obtener_habitacion(self, num):
-        for habitacion in self.habitaciones:
-            if habitacion.num == num:
-                return habitacion
-
-        return None
-
-    def entrar(self):
-        print("Estás en un laberinto")
-    
-
-    def __repr__(self):
-        return f"Laberinto({self.habitaciones})"
-
-class Pared(ElementoMapa):
-    """Representa una pared en el laberinto."""
-    def __init__(self):
-        super().__init__()
-
-    def entrar(self):
-        print("Te has chocado con una pared")
-
-class ParedBomba(Pared):
-    def __init__(self):
-        super().__init__()
-        self.activa = False
-
-    def entrar(self):
-        print("Te has chocado con una Pared Bomba")
-    
-
-class Puerta:
-    def __init__(self, lado1, lado2):
-        self.abierta = False
-        self.lado1 = lado1
-        self.lado2 = lado2
-
-    def abrir(self):
-        self.abierta = True
-
-    def cerrar(self):
-        self.abierta = False
-
-    def entrar(self):
-        if self.abierta:
-            print("La puerta está abierta")
-        else:
-            print("La puerta está cerrada")
-
-    def __repr__(self):
-        return f"Puerta(abierta={self.abierta}, lado1={self.lado1}, lado2={self.lado2})"
+from laberinto import Laberinto
+from bicho import Bicho
+from habitacion import Habitacion
+from puerta import Puerta
+from norte import Norte
+from sur import Sur
+from este import Este
+from oeste import Oeste
+from orientacion import Orientacion
+from agresivo import Agresivo
+from perezoso import Perezoso
+from pared import Pared
+from bomba import Bomba
+from pared_bomba import ParedBomba
+from ente import Personaje
 
 class Juego:
-    def __init__(self, laberinto):
-        self.laberinto = laberinto
+    def __init__(self):
+        self.laberinto = Laberinto()
+        self.bichos = []
+        self.personaje=None
+        self.bicho_threads = {}
 
-    def __repr__(self):
-        return f"Juego(laberinto={self.laberinto})"
-        
-    def crearLaberinto2Habitaciones(self):
-        laberinto = Laberinto()
-        hab1 = Habitación(1)
-        hab1.este = Pared()
-        hab1.oeste = Pared()
-        hab1.norte = Pared()
+    def agregar_bicho(self, bicho):
+        bicho.juego = self
+        self.bichos.append(bicho)
 
-        hab2 = Habitación(2)
-        hab2.sur = Pared()
-        hab2.este = Pared()
-        hab2.oeste = Pared()
+    def lanzarBicho(self, bicho):
+        import threading
+        thread = threading.Thread(target=bicho.actua)
+        if bicho not in self.bicho_threads:
+            self.bicho_threads[bicho] = []
+        self.bicho_threads[bicho].append(thread)
+        thread.start()
 
-        puerta = Puerta(hab1, hab2)
-        puerta.lado1 = hab1
-        puerta.lado2 = hab2
+    def terminarBicho(self, bicho):
+        if bicho in self.bicho_threads:
+            for thread in self.bicho_threads[bicho]:
+                bicho.vidas = 0
 
-        hab1.sur = puerta
-        hab2.norte = puerta
+    def agregar_personaje(self, nombre):
+        self.personaje = Personaje(10, 1, None, self, nombre)
+        self.laberinto.entrar(self.personaje)
 
-        laberinto.agregar_habitacion(hab1)
-        laberinto.agregar_habitacion(hab2)
-        return laberinto
+    def abrir_puertas(self):
+        def abrirPuertas(obj):
+            if obj.esPuerta():
+                obj.abrir()
+        self.laberinto.recorrer(abrirPuertas)
 
-    def crearLaberinto2HabitacionesFM(self, creator):
-        laberinto = creator.fabricarLaberinto()
-        hab1 = creator.fabricarHabitacion(1)
-        hab2 = creator.fabricarHabitacion(2)
-        puerta = creator.fabricarPuerta(hab1, hab2)
-        hab1.sur = puerta
-        hab2.norte = puerta
+    def cerrar_puertas(self):
+        def cerrarPuertas(obj):
+            if obj.esPuerta():
+                obj.cerrar()
+        self.laberinto.recorrer(cerrarPuertas)
 
-        laberinto.agregar_habitacion(hab1)
-        laberinto.agregar_habitacion(hab2)
-        return laberinto
-    
-    def crearLaberinto2HabitacionesFMD(self, creator):
-        laberinto = creator.fabricarLaberinto()
-        hab1 = creator.fabricarHabitacion(1)
-        hab2 = creator.fabricarHabitacion(2)
+    def iniciar_juego(self):
+        # Lógica para iniciar el juego
+        pass
 
-        pared1 = creator.fabricarPared()
-        bomba1 = creator.fabricarBomba(pared1)
-        hab1.este = bomba1
-
-        pared2 = creator.fabricarPared()
-        bomba2 = creator.fabricarBomba(pared2)
-        hab2.oeste = bomba2
-
-        puerta = creator.fabricarPuerta(hab1, hab2)
-        hab1.sur = puerta
-        hab2.norte = puerta
-
-        laberinto.agregar_habitacion(hab1)
-        laberinto.agregar_habitacion(hab2)
+    def crearLaberinto2HabFM(self, creator):
+        laberinto = creator.crear_laberinto()
+        habitacion1 = creator.crear_habitacion(1)
+        habitacion2 = creator.crear_habitacion(2)
+        puerta = creator.crear_puerta(habitacion1, habitacion2)
+        habitacion1.ponerElementoEnOrientacion(puerta, Norte())
+        habitacion2.ponerElementoEnOrientacion(puerta, Sur())
+        laberinto.agregar_habitacion(habitacion1)
+        laberinto.agregar_habitacion(habitacion2)
         return laberinto
     
-    def crearLaberinto4H4BFMD(self, creator):
-        laberinto = creator.fabricarLaberinto()
-        hab1 = creator.fabricarHabitacion(1)
-        hab2 = creator.fabricarHabitacion(2)
-        hab3 = creator.fabricarHabitacion(3)
-        hab4 = creator.fabricarHabitacion(4)
+    def crearLaberinto2HabBomba(self, creator):
+        laberinto = creator.crear_laberinto()
+        habitacion1 = creator.crear_habitacion(1)
+        habitacion2 = creator.crear_habitacion(2)
+        puerta = creator.crear_puerta(habitacion1, habitacion2)
 
-        puerta1 = creator.fabricarPuerta(hab1, hab2)
-        hab1.sur = puerta1
-        hab2.norte = puerta1
+        habitacion1.ponerElementoEnOrientacion(puerta, Norte())
+        habitacion2.ponerElementoEnOrientacion(puerta, Sur())
 
-        puerta2 = creator.fabricarPuerta(hab1, hab3)
-        hab1.este = puerta2
-        hab3.oeste = puerta2
+        pared1 = creator.crear_pared()
+        bomba1 = creator.crear_bomba(pared1)
+        habitacion1.ponerElementoEnOrientacion(bomba1, Este())
 
-        puerta3 = creator.fabricarPuerta(hab2, hab4)
-        hab2.este = puerta3
-        hab4.oeste = puerta3
+        pared2 = creator.crear_pared()
+        bomba2 = creator.crear_bomba(pared2)
+        habitacion2.ponerElementoEnOrientacion(bomba2, Oeste())
 
-        puerta4 = creator.fabricarPuerta(hab3, hab4)
-        hab3.sur = puerta4
-        hab4.norte = puerta4
+        laberinto.agregar_habitacion(habitacion1)
+        laberinto.agregar_habitacion(habitacion2)
+        return laberinto
 
-        bicho1 = creator.fabricarBichoAgresivo()
-        bicho2 = creator.fabricarBichoAgresivo()
-        bicho3 = creator.fabricarBichoPerezoso()
-        bicho4 = creator.fabricarBichoPerezoso()
+    def obtenerHabitacion(self, num):
+        return self.laberinto.obtenerHabitacion(num)
 
-        laberinto.agregar_habitacion(hab1)
-        laberinto.agregar_habitacion(hab2)
-        laberinto.agregar_habitacion(hab3)
-        laberinto.agregar_habitacion(hab4)
+    def crearLaberinto4Hab(self, creator):
+        laberinto = creator.crear_laberinto()
+
+        habitacion1 = creator.crear_habitacion(1)
+        habitacion2 = creator.crear_habitacion(2)
+        habitacion3 = creator.crear_habitacion(3)
+        habitacion4 = creator.crear_habitacion(4)
+
+        puerta12 = creator.crear_puerta(habitacion1, habitacion2)
+        puerta13 = creator.crear_puerta(habitacion1, habitacion3)
+        puerta24 = creator.crear_puerta(habitacion2, habitacion4)
+        puerta34 = creator.crear_puerta(habitacion3, habitacion4)
+
+        habitacion1.ponerElementoEnOrientacion(puerta12, Sur())
+        habitacion1.ponerElementoEnOrientacion(puerta13, Este())
+        habitacion3.ponerElementoEnOrientacion(puerta13, Oeste())
+        habitacion3.ponerElementoEnOrientacion(puerta34, Sur())
+        habitacion2.ponerElementoEnOrientacion(puerta12, Norte())
+        habitacion2.ponerElementoEnOrientacion(puerta24, Este())
+        habitacion4.ponerElementoEnOrientacion(puerta34, Norte())
+        habitacion4.ponerElementoEnOrientacion(puerta24, Oeste())
+
+        bicho1 = creator.crear_bicho(5, 10, habitacion1, creator.crear_modo_agresivo())
         self.agregar_bicho(bicho1)
-        self.agregar_bicho(bicho2)
+        bicho3 = creator.crear_bicho(5, 10, habitacion3, creator.crear_modo_agresivo())
         self.agregar_bicho(bicho3)
+        bicho2 = creator.crear_bicho(5, 1, habitacion2, creator.crear_modo_perezoso())
+        self.agregar_bicho(bicho2)
+        bicho4 = creator.crear_bicho(5, 1, habitacion4, creator.crear_modo_perezoso())
         self.agregar_bicho(bicho4)
 
-        bicho1.posicion = hab1
-        bicho2.posicion = hab3
-        bicho3.posicion = hab2
-        bicho4.posicion = hab4
-        return laberinto
-    
-    def obtenerHabitacion(self, num):
-        return self.laberinto.obtener_habitacion(num)
-    
-    def crearLaberinto1H1BB(self, creator):
-        laberinto = creator.fabricarLaberinto()
-        hab1 = creator.fabricarHabitacion(1)
-        bichoBoss = creator.fabricarBoss()
-        laberinto.agregar_habitacion(hab1)
-        self.agregar_bicho(bichoBoss)
-        bichoBoss.posicion = hab1
-        return laberinto
+        habitacion1.bicho = bicho1
+        habitacion2.bicho = bicho2
+        habitacion3.bicho = bicho3
+        habitacion4.bicho = bicho4
 
+        laberinto.agregar_habitacion(habitacion1)
+        laberinto.agregar_habitacion(habitacion2)
+        laberinto.agregar_habitacion(habitacion3)
+        laberinto.agregar_habitacion(habitacion4)
+
+        return laberinto
 
