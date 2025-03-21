@@ -5,12 +5,12 @@
 Implementado en **Creator**, que permite fabricar distintos elementos (Habitacion, Pared, Puerta). También existe **CreatorB**, que genera paredes con bombas en lugar de paredes normales.
 
 
-![image](https://github.com/user-attachments/assets/f3a531ce-c34f-4f00-a6fe-9f9aeb8a9e46)
+![image](https://github.com/user-attachments/assets/d81a7b10-31dc-4a51-a002-f2e8325856a0)
+
 
 # Decorator 
 Este patrón agrega responsabilidades a otros objetos mediante composición.Lo hemos implementado en **ParedBomba** , que actua como decorador de Pared.
-![image](https://github.com/user-attachments/assets/e3354f42-7338-4f74-b849-0ce264676c9f)
-
+![image](https://github.com/user-attachments/assets/f0288ecd-8bdd-4a5a-89bb-41c8b44b2fb6)
 
 
 # Strategy 
