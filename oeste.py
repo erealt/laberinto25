@@ -11,5 +11,8 @@ class Oeste(Orientacion):
         if contenedor.oeste is not None:
             func(contenedor.oeste)
 
+    def obtenerElemento(self, forma):
+        return forma.oeste
+
     def __str__(self):
         return "Soy la orientacion oeste"

@@ -10,6 +10,9 @@ class Norte(Orientacion):
     def recorrer(self, func, contenedor):
         if contenedor.norte is not None:
             func(contenedor.norte)
+            
+    def obtenerElemento(self, forma):
+        return forma.norte
 
     def __str__(self):
         return "Soy la orientacion norte"
