@@ -135,4 +135,6 @@ class Juego:
         laberinto.agregar_habitacion(habitacion4)
 
         return laberinto
+    def terminarJuego(self):
+        self.terminarBichos()
 

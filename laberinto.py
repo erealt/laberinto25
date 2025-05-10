@@ -12,7 +12,7 @@ class Laberinto(Contenedor):
     def __str__(self):
         return "Soy un laberinto"
 
-    def agregar_habitacion(self, habitacion):
+    def agregarHabitacion(self, habitacion):
         self.hijos.append(habitacion)
 
     def obtenerHabitacion(self, num):
@@ -20,3 +20,19 @@ class Laberinto(Contenedor):
             if habitacion.num == num:
                 return habitacion
         return None
+    
+    def recorrer(self, func):
+        func(self)
+        for hijo in self.hijos:
+            hijo.recorrer(func)
+
+    def entrar(self, alguien):        
+        hab1=self.obtenerHabitacion(1)
+        hab1.entrar(alguien)
+        print(f"{alguien} entra en el laberinto")
+    
+    def aceptar(self, unVisitor):
+        
+        for hijo in self.hijos:
+            hijo.aceptar(unVisitor)
+        
