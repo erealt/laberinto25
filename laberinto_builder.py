@@ -1,5 +1,6 @@
+import copy
 from laberinto import Laberinto
-from juego import Juego
+from habitacion import Habitacion
 from puerta import Puerta
 from norte import Norte
 from sur import Sur
@@ -11,6 +12,8 @@ from bicho import Bicho
 from agresivo import Agresivo
 from perezoso import Perezoso
 from cuadrado import Cuadrado
+from juego import Juego
+from tunel import Tunel
 
 class LaberintoBuilder:
     def __init__(self):
@@ -19,7 +22,8 @@ class LaberintoBuilder:
 
     def fabricarJuego(self):
         self.juego=Juego()
-        self.juego.laberinto=self.laberinto
+        self.juego.prototipo = self.laberinto
+        self.juego.laberinto = copy.deepcopy(self.juego.prototipo)
 
     def fabricarLaberinto(self):
         self.laberinto = Laberinto()
@@ -27,11 +31,12 @@ class LaberintoBuilder:
     def fabricarHabitacion(self, num):
         hab=Habitacion(num)	
         hab.forma=self.fabricarForma()
-        hab.agregarOrientacion(self.fabricarNorte())
-        hab.agregarOrientacion(self.fabricarSur())
-        hab.agregarOrientacion(self.fabricarEste())
-        hab.agregarOrientacion(self.fabricarOeste())
-        for each in hab.orientaciones:
+        hab.forma.num=num
+        # hab.agregarOrientacion(self.fabricarNorte())
+        # hab.agregarOrientacion(self.fabricarSur())
+        # hab.agregarOrientacion(self.fabricarEste())
+        # hab.agregarOrientacion(self.fabricarOeste())
+        for each in hab.forma.orientaciones:
             hab.ponerElementoEnOrientacion(self.fabricarPared(),each)
         self.laberinto.agregarHabitacion(hab)
         return hab
@@ -90,6 +95,10 @@ class LaberintoBuilder:
 
     def obtenerJuego(self):
         return self.juego
+    
+    def fabricarTunelEn(self,unCont):
+        tunel=Tunel(None)
+        unCont.agregar_hijo(tunel)
     
     def fabricarBicho(self,modo,posicion):
         if modo=='Agresivo':

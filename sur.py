@@ -1,5 +1,5 @@
 from orientacion import Orientacion
-
+from point import Point
 class Sur(Orientacion):
     _instance = None
 
@@ -20,6 +20,7 @@ class Sur(Orientacion):
 
     def obtenerElemento(self, forma):
         return forma.sur
+
     def caminarAleatorio(self, bicho, forma):
         forma.sur.entrar(bicho)
 
