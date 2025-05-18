@@ -14,6 +14,10 @@ class Personaje(Ente):
         print(f"{self.nombre} ha sido atacado por {atacante}. Vidas restantes: {self.vidas}")
         if self.vidas <= 0:
             print(f"{self.nombre} ha muerto.")
+    
+    def cambiarTipo(self, nuevo_tipo):
+     self.tipo = nuevo_tipo
+     print(f"{self.nombre} ahora es de tipo {self.tipo}")
 
     def __str__(self):
         return f"Personaje {self.nombre}"
