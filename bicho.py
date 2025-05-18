@@ -31,6 +31,22 @@ class Bicho(Ente):
 
     def estaVivo(self):
         return self.vidas > 0
+   
+    def atacarATodos(self): 
+     # Ataca al personaje si está en la misma habitación
+        if self.posicion.personaje and self.posicion.personaje.esta_vivo():
+            self.posicion.personaje.esAtacadoPor(self)
+        # Ataca a todos los bichos en la misma habitación (menos a sí mismo)
+        for bicho in self.posicion.bichos:
+         if bicho is not self and bicho.esta_vivo():
+             bicho.esAtacadoPor(self)
+    def esAtacadoPor(self, bicho):
+        self.vidas -= bicho.poder
+        if self.vidas <= 0:
+            print(f"{self} ha sido derrotado por {bicho}")
+        else:
+            print(f"{self} ha sido atacado por {bicho}, le quedan {self.vidas} vidas")  
+
 
     def __str__(self):
         return "Soy un bicho"
