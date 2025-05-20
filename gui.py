@@ -11,6 +11,12 @@ class MazeGUI:
         self.ancho = 0
         self.alto = 0
 
+        #carga de imagenes
+        self.bicho_agresivo=tk.PhotoImage(file="images/agresivo.png")
+        self.bicho_perezoso=tk.PhotoImage(file="images/perezoso.png")
+        self.bomba_img = tk.PhotoImage(file="images/bomba.png")  
+
+
         self.load_laberinto()
         self.init_ui()
 
@@ -24,6 +30,7 @@ class MazeGUI:
         self.master.title("Maze Game")
         self.canvas = tk.Canvas(self.master, width=1150, height=900, bg="white")
         self.canvas.pack()
+        
 
         self.calcularLaberinto()
         for habitacion in self.juego.laberinto.hijos:
@@ -31,7 +38,7 @@ class MazeGUI:
         self.dibujarLaberinto()
        #self.draw_maze()
         #self.draw_person()
-        #self.draw_bichos()
+        self.draw_bichos()
 
     def calcularLaberinto(self):
         self.calcularPosicion()
@@ -50,7 +57,7 @@ class MazeGUI:
     def visitarPuerta(self, puerta):
         pass
     def visitarBomba(self, bomba):
-        pass
+       pass
     def visitarTunel(self, tunel):
         pass
 
@@ -61,8 +68,23 @@ class MazeGUI:
         # Implementation to draw the person on the canvas
         pass
 
+   
     def draw_bichos(self):
-        # Implementation to draw the bichos on the canvas
+
+        for habitacion in self.juego.laberinto.hijos:
+         print("Habitacion:", habitacion.num);
+         x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2
+         y = habitacion.forma.punto.y + habitacion.forma.extent.y // 2    
+         for bicho in habitacion.bichos:
+             modo = type(bicho.modo).__name__.lower()
+             print(f"Dibujando bicho {bicho.modo} en ({x}, {y})")
+             if "agresivo"  in modo:
+                    self.canvas.create_image(x, y, image=self.bicho_agresivo)
+                    print("Imagen agresivo cargada:", self.bicho_agresivo)
+             elif  "perezoso" in modo:
+                 self.canvas.create_image(x, y, image=self.bicho_perezoso)
+             else:
+                print("Tipo de bicho desconocido:", bicho.modo)
         pass
 
     def calcularPosicion(self):

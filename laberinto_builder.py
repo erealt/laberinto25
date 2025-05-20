@@ -14,6 +14,7 @@ from perezoso import Perezoso
 from cuadrado import Cuadrado
 from juego import Juego
 from tunel import Tunel
+from bomba import Bomba
 
 class LaberintoBuilder:
     def __init__(self):
@@ -23,12 +24,12 @@ class LaberintoBuilder:
     def fabricarJuego(self):
         self.juego=Juego()
         self.juego.prototipo = self.laberinto
-        self.juego.laberinto = copy.deepcopy(self.juego.prototipo)
+        self.juego.laberinto = self.laberinto
 
     def fabricarLaberinto(self):
         self.laberinto = Laberinto()
 
-    def fabricarHabitacion(self, num):
+    def fabricarHabitacion(self, num,hijos=None):
         hab=Habitacion(num)	
         hab.forma=self.fabricarForma()
         hab.forma.num=num
@@ -38,7 +39,10 @@ class LaberintoBuilder:
         # hab.agregarOrientacion(self.fabricarOeste())
         for each in hab.forma.orientaciones:
             hab.ponerElementoEnOrientacion(self.fabricarPared(),each)
+           
+               
         self.laberinto.agregarHabitacion(hab)
+
         return hab
 
     def fabricarPared(self):
@@ -100,11 +104,29 @@ class LaberintoBuilder:
         tunel=Tunel(None)
         unCont.agregar_hijo(tunel)
     
-    def fabricarBicho(self,modo,posicion):
-        if modo=='Agresivo':
-            bicho=self.fabricarBichoAgresivo()
-        if modo=='Perezoso':
-            bicho=self.fabricarBichoPerezoso()
-        hab=self.laberinto.obtenerHabitacion(posicion)
+    # def fabricarBicho(self,modo,posicion):
+    #     if modo=='Agresivo':
+    #         bicho=self.fabricarBichoAgresivo()
+    #     if modo=='Perezoso':
+    #         bicho=self.fabricarBichoPerezoso()
+    #     hab=self.laberinto.obtenerHabitacion(posicion)
+    #     hab.entrar(bicho)
+    #     self.juego.agregar_bicho(bicho)
+    def fabricarBicho(self, modo, posicion):
+        if modo == 'Agresivo':
+            bicho = self.fabricarBichoAgresivo()
+        elif modo == 'Perezoso':
+             bicho = self.fabricarBichoPerezoso()
+        else:
+              print(f"Modo de bicho desconocido: {modo}")
+              return
+        hab = self.laberinto.obtenerHabitacion(posicion)
         hab.entrar(bicho)
+        print(f"Entrando bicho {bicho} en habitación {hab.num}")
+        # Asegúrate de que entrar añade el bicho a hab.bichos, si no:
+        if not hasattr(hab, "bichos"):
+            hab.bichos = []
+        if bicho not in hab.bichos:
+         hab.bichos.append(bicho)
+        bicho.posicion = hab
         self.juego.agregar_bicho(bicho)
