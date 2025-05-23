@@ -7,6 +7,14 @@ class Puerta(ElementoMapa):
         self.lado2 = lado2
         self.visitada = False
         self.estadoPuerta = Cerrada()
+    
+    def habitacion_destino(self,actual):
+        if actual == self.lado1:
+            return self.lado2
+        elif actual == self.lado2:
+            return self.lado1
+        else:
+         return None    
 
     def entrar(self, alguien):
         self.estadoPuerta.entrar(self, alguien)

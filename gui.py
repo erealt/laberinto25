@@ -2,6 +2,11 @@ import tkinter as tk
 from director import Director
 from point import Point
 from personaje import Personaje
+from norte import Norte
+from sur import Sur
+from este import Este
+from oeste import Oeste
+import tkinter.messagebox as messagebox
 
 class MazeGUI:
     def __init__(self, master, laberinto_file):
@@ -21,10 +26,10 @@ class MazeGUI:
 
 
         self.load_laberinto()
-        personaje=Personaje(self.juego,"Pepe",5)
-        habitacion=self.juego.obtenerHabitacion(1)
-        habitacion.entrar(personaje)
-        self.juego.personaje=personaje
+        # personaje=Personaje(self.juego,"Pepe",5)
+        # habitacion=self.juego.obtenerHabitacion(1)
+        # habitacion.entrar(personaje)
+        # self.juego.personaje=personaje
         self.init_ui()
 
     def load_laberinto(self):
@@ -50,11 +55,40 @@ class MazeGUI:
         tk.Button(frame, text="Este", command=self.mover_este).grid(row=1, column=2)
         tk.Button(frame, text="Sur", command=self.mover_sur).grid(row=2, column=1)
 
-        self.calcularLaberinto()
+        #boton puertas
+        tk.Button(frame, text="Abrir Puertas", command=self.abrir_puertas).grid(row=3, column=30)
+        tk.Button(frame, text="Cerrar Puertas", command=self.cerrar_puertas).grid(row=3, column=31)
+
+        #mostrar vidas
+        self.vidas_var = tk.StringVar()
+        self.vidas_label = tk.Label(frame, textvariable=self.vidas_var, font=("Arial", 14))
+        self.vidas_label.grid(row=0, column=40, rowspan=2, padx=10,sticky="e")
+        self.actualizar_vidas()
+
+
+        self.calcularLaberinto() 
         for habitacion in self.juego.laberinto.hijos:
             print("num-punto",habitacion.num,habitacion.forma.punto.x,habitacion.forma.punto.y)
         self.dibujarLaberinto()
        #self.draw_maze()
+        self.draw_person()
+        self.draw_bichos()
+
+    def actualizar_vidas(self):
+        vidas = self.juego.personaje.vidas
+        self.vidas_var.set(f"Vidas personaje: {vidas}")
+
+    def abrir_puertas(self):
+        self.juego.abrir_puertas()
+        self.canvas.delete("all")
+        self.dibujarLaberinto()
+        self.draw_person()
+        self.draw_bichos()
+
+    def cerrar_puertas(self):
+        self.juego.cerrar_puertas()
+        self.canvas.delete("all")
+        self.dibujarLaberinto()
         self.draw_person()
         self.draw_bichos()
 
@@ -71,32 +105,44 @@ class MazeGUI:
         self.dibujarRectangulo(hab.forma)
     
     def mover_norte(self):
-        self.mover_personaje("Norte")
+        self.mover_personaje(Norte())
 
     def mover_sur(self):
-        self.mover_personaje("Sur") 
+        self.mover_personaje(Sur()) 
 
     def mover_oeste(self):
-        self.mover_personaje("Oeste")
+        self.mover_personaje(Oeste())
 
     def mover_este(self):
-        self.mover_personaje("Este")  
+        self.mover_personaje(Este())
 
     def mover_personaje(self, direccion):   
         personaje = self.juego.personaje
         habitacion_actual = personaje.posicion
         # Busca la puerta en la dirección dada
         elemento = habitacion_actual.obtenerElementoEnOrientacion(direccion)
-        if elemento and hasattr(elemento, "habitaion_destino"):
-            nueva_hab=elemento.habitaion_destino
+        if elemento and hasattr(elemento, "habitacion_destino"):
+            from estado_puerta import Abierta
+            if not isinstance(elemento.estadoPuerta, Abierta):
+                print("La puerta no está abierta")
+                return
+            nueva_hab=elemento.habitacion_destino(habitacion_actual)
             habitacion_actual.personaje=None
             nueva_hab.entrar(personaje)
             self.juego.personaje=personaje
+
+            #Ataquee del bicho al entrar a la nueva habitacion
+            for bicho in nueva_hab.bichos:
+                print(f"El bicho {bicho} ataca al personaje {personaje}")
+                personaje.esAtacadoPor(bicho)
         self.canvas.delete("all")
         self.dibujarLaberinto()
         self.draw_person()
         self.draw_bichos()
-        
+        self.actualizar_vidas()
+        if self.juego.personaje.vidas <= 0:
+            messagebox.showinfo("Juego terminado", "¡Juego terminado!\nHan ganado los bichos.")
+            self.master.quit()
 
     def visitarPared(self, pared):
         pass
