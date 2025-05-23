@@ -16,13 +16,15 @@ class MazeGUI:
         self.canvas = None
         self.ancho = 0
         self.alto = 0
+        self.personaje_img_id=None
 
         #carga de imagenes
         self.bicho_agresivo=tk.PhotoImage(file="images/agresivo.png")
         self.bicho_perezoso=tk.PhotoImage(file="images/perezoso.png")
         self.bomba_img = tk.PhotoImage(file="images/bomba.png")  
         self.bicho_caotico=tk.PhotoImage(file="images/caotico.png").subsample(2, 2)  # Reduce el tamaño de la imagen a la mitad
-        self.personaje_img=tk.PhotoImage(file="images/personaje.png").subsample(3, 3)  
+        self.personaje_img=tk.PhotoImage(file="images/personaje.png").subsample(3, 3)
+        self.mago_img=tk.PhotoImage(file="images/mago.png").subsample(3, 3)  
 
 
         self.load_laberinto()
@@ -58,6 +60,10 @@ class MazeGUI:
         #boton puertas
         tk.Button(frame, text="Abrir Puertas", command=self.abrir_puertas).grid(row=3, column=30)
         tk.Button(frame, text="Cerrar Puertas", command=self.cerrar_puertas).grid(row=3, column=31)
+
+        #boton modo personaje
+        tk.Button(frame, text="Modo Normal", command=lambda: self.cambiar_modo_personaje("normal")).grid(row=3, column=32)
+        tk.Button(frame, text="Modo Mago", command=lambda: self.cambiar_modo_personaje("mago")).grid(row=3, column=33)
 
         #mostrar vidas
         self.vidas_var = tk.StringVar()
@@ -168,6 +174,14 @@ class MazeGUI:
         from estado_puerta import Abierta
         color = "green" if isinstance(puerta.estadoPuerta, Abierta) else "red"
         self.canvas.create_rectangle(px-5, py-5, px+5, py+5, fill=color)
+    
+    def cambiar_modo_personaje(self,modo):
+        self.juego.personaje.modo = modo
+        self.canvas.delete("all")
+        self.dibujarLaberinto()
+        self.draw_person()
+        self.draw_bichos()
+        self.actualizar_vidas()
 
 
 
@@ -185,12 +199,26 @@ class MazeGUI:
         self.canvas.create_rectangle(forma.punto.x, forma.punto.y, forma.punto.x+forma.extent.x, forma.punto.y+forma.extent.y, fill="lightgray")
     
     def draw_person(self):
+        if self.personaje_img_id is not None:
+            self.canvas.delete(self.personaje_img_id)
+            self.personaje_img_id = None
+
         for habitacion in self.juego.laberinto.hijos:
             if habitacion.personaje:
                 x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2 - 50
                 y = habitacion.forma.punto.y + habitacion.forma.extent.y // 2 
-                self.canvas.create_image(x, y, image=self.personaje_img)
-                print("Imagen personaje cargada:", self.personaje_img)
+                
+            modo = getattr(habitacion.personaje, "modo", "normal")
+            if modo == "mago":
+                img = self.mago_img
+        
+            else:
+                img = self.personaje_img
+            
+            self.personaje_img_id = self.canvas.create_image(x, y, image=img)
+            
+            print("Imagen personaje cargada:", img)
+            break
 
    
     def draw_bichos(self):
