@@ -21,7 +21,7 @@ class MazeGUI:
 
 
         self.load_laberinto()
-        personaje=Personaje("Pepe")
+        personaje=Personaje(self.juego,"Pepe",5)
         habitacion=self.juego.obtenerHabitacion(1)
         habitacion.entrar(personaje)
         self.juego.personaje=personaje
@@ -32,7 +32,7 @@ class MazeGUI:
         director.procesar(self.laberinto_file)
         self.juego = director.obtenerJuego()
         if not hasattr(self.juego, "personaje") or self.juego.personaje is None:
-            personaje = Personaje("Pepe")
+            personaje = Personaje(self.juego,"Pepe",5)
             habitacion = self.juego.laberinto.obtenerHabitacion(1)
             habitacion.entrar(personaje)
             self.juego.personaje = personaje
@@ -49,7 +49,6 @@ class MazeGUI:
         tk.Button(frame, text="Oeste", command=self.mover_oeste).grid(row=1, column=0)
         tk.Button(frame, text="Este", command=self.mover_este).grid(row=1, column=2)
         tk.Button(frame, text="Sur", command=self.mover_sur).grid(row=2, column=1)
-        
 
         self.calcularLaberinto()
         for habitacion in self.juego.laberinto.hijos:
@@ -102,7 +101,30 @@ class MazeGUI:
     def visitarPared(self, pared):
         pass
     def visitarPuerta(self, puerta):
-        pass
+        hab=puerta.lado1
+        x = hab.forma.punto.x
+        y = hab.forma.punto.y
+        w = hab.forma.extent.x
+        h = hab.forma.extent.y
+
+        dx = puerta.lado2.forma.punto.x - x
+        dy = puerta.lado2.forma.punto.y - y
+
+        px, py = x + w // 2, y + h // 2
+        if dx > 0:  # lado2 está a la derecha: puerta Este
+            px, py = x + w, y + h // 2
+        elif dx < 0:  # lado2 está a la izquierda: puerta Oeste
+            px, py = x, y + h // 2
+        elif dy > 0:  # lado2 está abajo: puerta Sur
+            px, py = x + w // 2, y + h
+        elif dy < 0:  # lado2 está arriba: puerta Norte
+            px, py = x + w // 2, y
+        from estado_puerta import Abierta
+        color = "green" if isinstance(puerta.estadoPuerta, Abierta) else "red"
+        self.canvas.create_rectangle(px-5, py-5, px+5, py+5, fill=color)
+
+
+
     def visitarBomba(self, bomba):
         # Suponiendo que bomba tiene un atributo 'forma' con punto y extent
         x = bomba.forma.punto.x + bomba.forma.extent.x // 2
