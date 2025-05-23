@@ -11,10 +11,12 @@ from pared import Pared
 from bicho import Bicho
 from agresivo import Agresivo
 from perezoso import Perezoso
+from caotico import Caotico
 from cuadrado import Cuadrado
 from juego import Juego
 from tunel import Tunel
 from bomba import Bomba
+from personaje import Personaje
 
 class LaberintoBuilder:
     def __init__(self):
@@ -40,7 +42,13 @@ class LaberintoBuilder:
         for each in hab.forma.orientaciones:
             hab.ponerElementoEnOrientacion(self.fabricarPared(),each)
            
-               
+        if hijos:
+         for hijo in hijos:
+            if hijo["tipo"] == "bomba":
+                bomba = Bomba()
+                hab.agregar_hijo(bomba) 
+        
+          
         self.laberinto.agregarHabitacion(hab)
 
         return hab
@@ -96,6 +104,12 @@ class LaberintoBuilder:
         bicho.modo=Perezoso()
         bicho.iniPerezoso()
         return bicho
+    def fabricarBichoCaotico(self):
+        bicho=Bicho()
+        bicho.modo=Caotico()
+        bicho.iniCaotico()
+        return bicho
+
 
     def obtenerJuego(self):
         return self.juego
@@ -104,19 +118,14 @@ class LaberintoBuilder:
         tunel=Tunel(None)
         unCont.agregar_hijo(tunel)
     
-    # def fabricarBicho(self,modo,posicion):
-    #     if modo=='Agresivo':
-    #         bicho=self.fabricarBichoAgresivo()
-    #     if modo=='Perezoso':
-    #         bicho=self.fabricarBichoPerezoso()
-    #     hab=self.laberinto.obtenerHabitacion(posicion)
-    #     hab.entrar(bicho)
-    #     self.juego.agregar_bicho(bicho)
+ 
     def fabricarBicho(self, modo, posicion):
         if modo == 'Agresivo':
             bicho = self.fabricarBichoAgresivo()
         elif modo == 'Perezoso':
              bicho = self.fabricarBichoPerezoso()
+        elif modo == 'Caotico':
+            bicho = self.fabricarBichoCaotico()
         else:
               print(f"Modo de bicho desconocido: {modo}")
               return

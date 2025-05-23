@@ -1,6 +1,7 @@
 import tkinter as tk
 from director import Director
 from point import Point
+from personaje import Personaje
 
 class MazeGUI:
     def __init__(self, master, laberinto_file):
@@ -15,21 +16,39 @@ class MazeGUI:
         self.bicho_agresivo=tk.PhotoImage(file="images/agresivo.png")
         self.bicho_perezoso=tk.PhotoImage(file="images/perezoso.png")
         self.bomba_img = tk.PhotoImage(file="images/bomba.png")  
+        self.bicho_caotico=tk.PhotoImage(file="images/caotico.png").subsample(2, 2)  # Reduce el tamaño de la imagen a la mitad
+        self.personaje_img=tk.PhotoImage(file="images/personaje.png").subsample(3, 3)  
 
 
         self.load_laberinto()
+        personaje=Personaje("Pepe")
+        habitacion=self.juego.obtenerHabitacion(1)
+        habitacion.entrar(personaje)
+        self.juego.personaje=personaje
         self.init_ui()
 
     def load_laberinto(self):
         director = Director()
         director.procesar(self.laberinto_file)
         self.juego = director.obtenerJuego()
-        self.juego.agregar_personaje("Pepe")
+        if not hasattr(self.juego, "personaje") or self.juego.personaje is None:
+            personaje = Personaje("Pepe")
+            habitacion = self.juego.laberinto.obtenerHabitacion(1)
+            habitacion.entrar(personaje)
+            self.juego.personaje = personaje
 
     def init_ui(self):
         self.master.title("Maze Game")
-        self.canvas = tk.Canvas(self.master, width=1150, height=900, bg="white")
-        self.canvas.pack()
+        self.canvas = tk.Canvas(self.master, width=1150, height=700, bg="white")
+        self.canvas.pack(side=tk.BOTTOM)
+
+        #botones de movimiento
+        frame = tk.Frame(self.master)
+        frame.pack(side=tk.TOP)
+        tk.Button(frame, text="Norte", command=self.mover_norte).grid(row=0, column=1)
+        tk.Button(frame, text="Oeste", command=self.mover_oeste).grid(row=1, column=0)
+        tk.Button(frame, text="Este", command=self.mover_este).grid(row=1, column=2)
+        tk.Button(frame, text="Sur", command=self.mover_sur).grid(row=2, column=1)
         
 
         self.calcularLaberinto()
@@ -37,7 +56,7 @@ class MazeGUI:
             print("num-punto",habitacion.num,habitacion.forma.punto.x,habitacion.forma.punto.y)
         self.dibujarLaberinto()
        #self.draw_maze()
-        #self.draw_person()
+        self.draw_person()
         self.draw_bichos()
 
     def calcularLaberinto(self):
@@ -51,13 +70,46 @@ class MazeGUI:
 
     def visitarHabitacion(self, hab):
         self.dibujarRectangulo(hab.forma)
+    
+    def mover_norte(self):
+        self.mover_personaje("Norte")
+
+    def mover_sur(self):
+        self.mover_personaje("Sur") 
+
+    def mover_oeste(self):
+        self.mover_personaje("Oeste")
+
+    def mover_este(self):
+        self.mover_personaje("Este")  
+
+    def mover_personaje(self, direccion):   
+        personaje = self.juego.personaje
+        habitacion_actual = personaje.posicion
+        # Busca la puerta en la dirección dada
+        elemento = habitacion_actual.obtenerElementoEnOrientacion(direccion)
+        if elemento and hasattr(elemento, "habitaion_destino"):
+            nueva_hab=elemento.habitaion_destino
+            habitacion_actual.personaje=None
+            nueva_hab.entrar(personaje)
+            self.juego.personaje=personaje
+        self.canvas.delete("all")
+        self.dibujarLaberinto()
+        self.draw_person()
+        self.draw_bichos()
+        
 
     def visitarPared(self, pared):
         pass
     def visitarPuerta(self, puerta):
         pass
     def visitarBomba(self, bomba):
-       pass
+        # Suponiendo que bomba tiene un atributo 'forma' con punto y extent
+        x = bomba.forma.punto.x + bomba.forma.extent.x // 2
+        y = bomba.forma.punto.y + bomba.forma.extent.y // 2
+        self.canvas.create_image(x, y, image=self.bomba_img)
+        print("Imagen bomba cargada:")
+
     def visitarTunel(self, tunel):
         pass
 
@@ -65,15 +117,19 @@ class MazeGUI:
         self.canvas.create_rectangle(forma.punto.x, forma.punto.y, forma.punto.x+forma.extent.x, forma.punto.y+forma.extent.y, fill="lightgray")
     
     def draw_person(self):
-        # Implementation to draw the person on the canvas
-        pass
+        for habitacion in self.juego.laberinto.hijos:
+            if habitacion.personaje:
+                x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2 - 50
+                y = habitacion.forma.punto.y + habitacion.forma.extent.y // 2 
+                self.canvas.create_image(x, y, image=self.personaje_img)
+                print("Imagen personaje cargada:", self.personaje_img)
 
    
     def draw_bichos(self):
 
         for habitacion in self.juego.laberinto.hijos:
          print("Habitacion:", habitacion.num);
-         x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2
+         x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2 + 50
          y = habitacion.forma.punto.y + habitacion.forma.extent.y // 2    
          for bicho in habitacion.bichos:
              modo = type(bicho.modo).__name__.lower()
@@ -83,6 +139,8 @@ class MazeGUI:
                     print("Imagen agresivo cargada:", self.bicho_agresivo)
              elif  "perezoso" in modo:
                  self.canvas.create_image(x, y, image=self.bicho_perezoso)
+             elif "caotico" in modo:
+                 self.canvas.create_image(x, y, image=self.bicho_caotico)
              else:
                 print("Tipo de bicho desconocido:", bicho.modo)
         pass

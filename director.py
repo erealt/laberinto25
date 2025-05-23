@@ -17,6 +17,12 @@ class Director:
         self.fabricarJuego()
         self.fabricarBichos()
 
+        if "personaje" in self.dict:
+         nombre = self.dict["personaje"].get("nombre", "Pepe")
+         posicion = self.dict["personaje"]["posicion"]
+         self.builder.fabricarPersonaje(nombre, posicion)
+        
+
     def fabricarJuego(self):
         self.builder.fabricarJuego()
 

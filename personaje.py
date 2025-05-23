@@ -1,10 +1,11 @@
 from ente import Ente
 
 class Personaje(Ente):
-    def __init__(self, nombre, vidas=10):
+    def __init__(self, juego,nombre, vidas=5):
         super().__init__()
         self.nombre = nombre
         self.vidas = vidas
+        self.juego=juego
 
     def esta_vivo(self):
         return self.vidas > 0

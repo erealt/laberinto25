@@ -7,21 +7,23 @@ class Habitacion(Contenedor):
         super().__init__()
         self.num = num
         self.bichos = []
-        self.personaje=[]
-        self.monedad=[]
+        self.personaje=None
+        self.monedas=[]
+        self.forma=None
 
     def entrar(self, alguien):
         print(f"Entrando en la habitación {self.num}")
         if isinstance(alguien, Bicho):
             self.bichos.append(alguien)
         elif isinstance(alguien, Personaje):
-            self.personajes.append(alguien)
-        
+            self.personaje=alguien
         alguien.posicion=self
 
     def visitarContenedor(self, unVisitor):
         unVisitor.visitarHabitacion(self)
+
     def calcularPosicion(self):
         self.forma.calcularPosicion()
+
     def __str__(self):
         return "Soy una habitacion"

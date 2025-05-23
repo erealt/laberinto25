@@ -13,7 +13,7 @@ from perezoso import Perezoso
 from pared import Pared
 from bomba import Bomba
 from pared_bomba import ParedBomba
-from ente import Personaje
+from personaje import Personaje
 
 class Juego:
     def __init__(self):
@@ -51,8 +51,8 @@ class Juego:
         for bicho in self.bichos:
             self.terminarBicho(bicho)
 
-    def agregar_personaje(self, nombre):
-        self.personaje = Personaje(10, 1, self, nombre)
+    def agregar_personaje(self, nombre,vidas=5):
+        self.personaje = Personaje( self,nombre,vidas)
         self.laberinto.entrar(self.personaje)
 
     def buscarPersonaje(self,bicho):

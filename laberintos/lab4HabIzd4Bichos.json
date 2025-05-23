@@ -16,8 +16,8 @@
 	],
 	"bichos":[
 		{"modo":"Agresivo","posicion":1},
+		{"modo":"Caotico","posicion":2},
 		{"modo":"Agresivo","posicion":3},
-		{"modo":"Perezoso","posicion":2},
 		{"modo":"Perezoso","posicion":4}
 	]
 }

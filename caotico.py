@@ -1,7 +1,7 @@
 import time
 from modo import Modo
 
-class Cazador(Modo):
+class Caotico(Modo):
     def __init__(self):
         super().__init__()
 
