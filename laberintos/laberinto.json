@@ -15,8 +15,8 @@
 	[3,"Sur",4,"Norte"]
 	],
 	"bichos":[
-		{"modo":"Agresivo","posicion":1},
-		{"modo":"Perezoso","posicion":2},
+		
+		{"modo":"Bueno","posicion":2},
 		{"modo":"Agresivo","posicion":3},
 		{"modo":"Perezoso","posicion":4}
 	]

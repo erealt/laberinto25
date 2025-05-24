@@ -24,7 +24,8 @@ class MazeGUI:
         self.bomba_img = tk.PhotoImage(file="images/bomba.png")  
         self.bicho_caotico=tk.PhotoImage(file="images/caotico.png").subsample(2, 2)  # Reduce el tamaño de la imagen a la mitad
         self.personaje_img=tk.PhotoImage(file="images/personaje.png").subsample(3, 3)
-        self.mago_img=tk.PhotoImage(file="images/mago.png").subsample(3, 3)  
+        self.mago_img=tk.PhotoImage(file="images/mago.png").subsample(3, 3) 
+        self.bicho_bueno_img = tk.PhotoImage(file="images/bueno.png").subsample(4, 4)  
 
 
 
@@ -181,11 +182,16 @@ class MazeGUI:
 
             #Ataquee del bicho al entrar a la nueva habitacion
             for bicho in nueva_hab.bichos:
-                print(f"El bicho {bicho} ataca al personaje {personaje}")
-                personaje.esAtacadoPor(bicho)
+                modo= type(bicho.modo).__name__.lower()
+                if "bueno" in modo and hasattr(bicho,"ayudar"):
+                    bicho.ayudar(personaje)
+                else:
+                    print(f"El bicho {bicho} ataca al personaje {personaje}")
+                    personaje.esAtacadoPor(bicho)
                 
             if getattr(personaje, "modo", "normal") == "mago":
                 personaje.curar()
+            
         self.canvas.delete("all")
         self.dibujarLaberinto()
         self.draw_person()
@@ -278,11 +284,14 @@ class MazeGUI:
              print(f"Dibujando bicho {bicho.modo} en ({x}, {y})")
              if "agresivo"  in modo:
                     self.canvas.create_image(x, y, image=self.bicho_agresivo)
-                    print("Imagen agresivo cargada:", self.bicho_agresivo)
+                    # print("Imagen agresivo cargada:", self.bicho_agresivo)
              elif  "perezoso" in modo:
                  self.canvas.create_image(x, y, image=self.bicho_perezoso)
              elif "caotico" in modo:
                  self.canvas.create_image(x, y, image=self.bicho_caotico)
+             elif "bueno" in modo:
+                self.canvas.create_image(x, y, image=self.bicho_bueno_img)
+                
              else:
                 print("Tipo de bicho desconocido:", bicho.modo)
         pass
@@ -338,5 +347,5 @@ class MazeGUI:
 
 if __name__ == '__main__':
     root = tk.Tk()
-    gui = MazeGUI(root, "./laberintos/lab4HabIzd4Bichos.json")  # Use a default laberinto file
+    gui = MazeGUI(root, "./laberintos/laberinto.json")  # Use a default laberinto file
     root.mainloop()

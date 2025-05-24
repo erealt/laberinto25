@@ -27,6 +27,9 @@ class Bicho(Ente):
     def iniCaotico(self):
         self.poder = 1
         self.vidas = 5
+    def iniBueno(self):
+        self.poder=0
+        self.vidas = 1
         
     def atacar(self):
         self.juego.buscarPersonaje(self)

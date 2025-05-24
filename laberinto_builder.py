@@ -17,6 +17,7 @@ from juego import Juego
 from tunel import Tunel
 from bomba import Bomba
 from personaje import Personaje
+from bueno import Bueno
 
 class LaberintoBuilder:
     def __init__(self):
@@ -109,6 +110,11 @@ class LaberintoBuilder:
         bicho.modo=Caotico()
         bicho.iniCaotico()
         return bicho
+    def fabricarBichoBueno(self):
+        bicho=Bicho()
+        bicho.modo=Bueno()
+        bicho.iniBueno()
+        return bicho
 
 
     def obtenerJuego(self):
@@ -126,6 +132,9 @@ class LaberintoBuilder:
              bicho = self.fabricarBichoPerezoso()
         elif modo == 'Caotico':
             bicho = self.fabricarBichoCaotico()
+        elif modo=='Bueno':
+            bicho=self.fabricarBichoBueno()
+
         else:
               print(f"Modo de bicho desconocido: {modo}")
               return
