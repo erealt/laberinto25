@@ -27,6 +27,8 @@ class MazeGUI:
         self.mago_img=tk.PhotoImage(file="images/mago.png").subsample(3, 3)  
 
 
+
+
         self.load_laberinto()
         # personaje=Personaje(self.juego,"Pepe",5)
         # habitacion=self.juego.obtenerHabitacion(1)
@@ -62,14 +64,24 @@ class MazeGUI:
         tk.Button(frame, text="Cerrar Puertas", command=self.cerrar_puertas).grid(row=3, column=31)
 
         #boton modo personaje
-        tk.Button(frame, text="Modo Normal", command=lambda: self.cambiar_modo_personaje("normal")).grid(row=3, column=32)
-        tk.Button(frame, text="Modo Mago", command=lambda: self.cambiar_modo_personaje("mago")).grid(row=3, column=33)
+        tk.Button(frame, text="Modo Normal", command=lambda: self.cambiar_modo_personaje("normal")).grid(row=4, column=32)
+        tk.Button(frame, text="Modo Mago", command=lambda: self.cambiar_modo_personaje("mago")).grid(row=4, column=33)
+
+        #boton atacar de personaje
+        tk.Button(frame, text="Atacar", command=lambda: self.atacar_personaje()).grid(row=4, column=34)
+
+        self.bicho_vidas_var = tk.StringVar()
+        self.bicho_vidas_label = tk.Label(frame, textvariable=self.bicho_vidas_var, font=("Arial", 14))
+        self.bicho_vidas_label.grid(row=1, column=40, rowspan=2, padx=10, sticky="e")
+        self.actualizar_vidas_bicho()
 
         #mostrar vidas
         self.vidas_var = tk.StringVar()
         self.vidas_label = tk.Label(frame, textvariable=self.vidas_var, font=("Arial", 14))
         self.vidas_label.grid(row=0, column=40, rowspan=2, padx=10,sticky="e")
         self.actualizar_vidas()
+
+        
 
 
         self.calcularLaberinto() 
@@ -83,6 +95,35 @@ class MazeGUI:
     def actualizar_vidas(self):
         vidas = self.juego.personaje.vidas
         self.vidas_var.set(f"Vidas personaje: {vidas}")
+
+    def actualizar_vidas_bicho(self):
+        habitacion = self.juego.personaje.posicion
+        if habitacion.bichos:
+        # Si hay varios bichos, muestra todos
+            vidas_text = " | ".join(
+                f"{type(bicho.modo).__name__}: {getattr(bicho, 'vidas', '?')}" for bicho in habitacion.bichos
+         )
+            self.bicho_vidas_var.set(f"Vidas bichos: {vidas_text}")
+        else:
+            self.bicho_vidas_var.set("Vidas bichos: -")
+
+    def atacar_personaje(self):
+        personaje = self.juego.personaje
+        habitacion = personaje.posicion
+    # Ataca a todos los bichos de la habitación (puedes cambiarlo si quieres solo uno)
+        for bicho in list(habitacion.bichos):  # Usa list() para evitar problemas al eliminar
+         personaje.atacar(bicho)
+        self.canvas.delete("all")
+        self.dibujarLaberinto()
+        self.draw_person()
+        self.draw_bichos()
+        self.actualizar_vidas_bicho()
+
+        # --- Comprobación de bichos restantes ---
+        bichos_vivos = any(hab.bichos for hab in self.juego.laberinto.hijos)
+        if not bichos_vivos:
+            messagebox.showinfo("Fin del juego", "¡Fin del juego!\nGana el personaje.")
+            self.master.quit()
 
     def abrir_puertas(self):
         self.juego.abrir_puertas()
@@ -135,17 +176,22 @@ class MazeGUI:
             nueva_hab=elemento.habitacion_destino(habitacion_actual)
             habitacion_actual.personaje=None
             nueva_hab.entrar(personaje)
+            
             self.juego.personaje=personaje
 
             #Ataquee del bicho al entrar a la nueva habitacion
             for bicho in nueva_hab.bichos:
                 print(f"El bicho {bicho} ataca al personaje {personaje}")
                 personaje.esAtacadoPor(bicho)
+                
+            if getattr(personaje, "modo", "normal") == "mago":
+                personaje.curar()
         self.canvas.delete("all")
         self.dibujarLaberinto()
         self.draw_person()
         self.draw_bichos()
         self.actualizar_vidas()
+        self.actualizar_vidas_bicho()
         if self.juego.personaje.vidas <= 0:
             messagebox.showinfo("Juego terminado", "¡Juego terminado!\nHan ganado los bichos.")
             self.master.quit()
@@ -208,17 +254,17 @@ class MazeGUI:
                 x = habitacion.forma.punto.x + habitacion.forma.extent.x // 2 - 50
                 y = habitacion.forma.punto.y + habitacion.forma.extent.y // 2 
                 
-            modo = getattr(habitacion.personaje, "modo", "normal")
-            if modo == "mago":
-                img = self.mago_img
+                modo = getattr(habitacion.personaje, "modo", "normal")
+                if modo == "mago":
+                    img = self.mago_img
         
-            else:
-                img = self.personaje_img
+                else:
+                    img = self.personaje_img
             
-            self.personaje_img_id = self.canvas.create_image(x, y, image=img)
+                self.personaje_img_id = self.canvas.create_image(x, y, image=img)
             
-            print("Imagen personaje cargada:", img)
-            break
+                print("Imagen personaje cargada:", img)
+                break
 
    
     def draw_bichos(self):
