@@ -7,6 +7,7 @@ from sur import Sur
 from este import Este
 from oeste import Oeste
 import tkinter.messagebox as messagebox
+import threading
 
 class MazeGUI:
     def __init__(self, master, laberinto_file):
@@ -25,7 +26,8 @@ class MazeGUI:
         self.bicho_caotico=tk.PhotoImage(file="images/caotico.png").subsample(2, 2)  # Reduce el tamaño de la imagen a la mitad
         self.personaje_img=tk.PhotoImage(file="images/personaje.png").subsample(3, 3)
         self.mago_img=tk.PhotoImage(file="images/mago.png").subsample(3, 3) 
-        self.bicho_bueno_img = tk.PhotoImage(file="images/bueno.png").subsample(4, 4)  
+        self.bicho_bueno_img = tk.PhotoImage(file="images/bueno.png").subsample(4, 4)
+        self.fantasma_img = tk.PhotoImage(file="images/fantasma.png").subsample(4, 4)  
 
 
 
@@ -67,6 +69,7 @@ class MazeGUI:
         #boton modo personaje
         tk.Button(frame, text="Modo Normal", command=lambda: self.cambiar_modo_personaje("normal")).grid(row=4, column=32)
         tk.Button(frame, text="Modo Mago", command=lambda: self.cambiar_modo_personaje("mago")).grid(row=4, column=33)
+        tk.Button(frame, text="Modo Fantasma", command=lambda: self.cambiar_modo_personaje("fantasma")).grid(row=4, column=35)
 
         #boton atacar de personaje
         tk.Button(frame, text="Atacar", command=lambda: self.atacar_personaje()).grid(row=4, column=34)
@@ -182,9 +185,13 @@ class MazeGUI:
 
             #Ataquee del bicho al entrar a la nueva habitacion
             for bicho in nueva_hab.bichos:
-                modo= type(bicho.modo).__name__.lower()
-                if "bueno" in modo and hasattr(bicho,"ayudar"):
-                    bicho.ayudar(personaje)
+                modo_bicho= type(bicho.modo).__name__.lower()
+                modo= getattr(personaje, "modo", "normal")
+                if modo == "fantasma":
+                    print(f"{personaje.nombre} es fantasma y no recibe daño.")
+                    continue
+                if "bueno" in modo_bicho and hasattr(bicho.modo,"ayudar"):
+                    bicho.modo.ayudar(personaje)
                 else:
                     print(f"El bicho {bicho} ataca al personaje {personaje}")
                     personaje.esAtacadoPor(bicho)
@@ -235,6 +242,19 @@ class MazeGUI:
         self.draw_bichos()
         self.actualizar_vidas()
 
+        if modo == "fantasma":
+        # Cambia a modo personaje normal después de 3 segundos
+            def volver_a_normal():
+                import time
+                time.sleep(3)
+                self.juego.personaje.modo = "normal"
+                self.canvas.delete("all")
+                self.dibujarLaberinto()
+                self.draw_person()
+                self.draw_bichos()
+                self.actualizar_vidas()
+            threading.Thread(target=volver_a_normal, daemon=True).start()
+
 
 
     def visitarBomba(self, bomba):
@@ -263,7 +283,8 @@ class MazeGUI:
                 modo = getattr(habitacion.personaje, "modo", "normal")
                 if modo == "mago":
                     img = self.mago_img
-        
+                elif modo == "fantasma":
+                    img = self.fantasma_img
                 else:
                     img = self.personaje_img
             
